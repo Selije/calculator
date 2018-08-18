@@ -1,5 +1,6 @@
 from enum import Enum
 import unittest
+import re
 
 
 class TokenType(Enum):
@@ -31,7 +32,50 @@ class Token:
 
 
 def tokenize(input):
-    return []
+    whitespaces=re.compile(r'^\s')     # ^ position 0, ^s+ whitespace 1 or more times
+    num = re.compile(r'^\d+')
+    result = []
+    position = 0
+
+    while position < len(input):
+        current_char = input[position]
+        if current_char == '+':
+            result.append(Token(TokenType.PLUS, current_char))
+            position += 1
+        elif current_char == '-':
+            result.append(Token(TokenType.MINUS, current_char))
+            position += 1
+        elif current_char == '*':
+            result.append(Token(TokenType.MUL, current_char))
+            position += 1
+        elif current_char == '/':
+            result.append(Token(TokenType.DIV, current_char))
+            position += 1
+        elif current_char == '(':
+            result.append(Token(TokenType.LPAR, current_char))
+            position += 1
+        elif current_char == ')':
+            result.append(Token(TokenType.RPAR, current_char))
+            position += 1
+        # elif current_char == ' ':
+        #     result.append(Token(TokenType., current_char))
+        #     position += 1
+        elif whitespaces.match(current_char):
+            position += 1
+        else:
+            match = num.match(input[position:])
+            if match:
+                num_literal = match.group(0)
+                result.append(Token(TokenType.NUM, num_literal))
+                position += len(num_literal)
+            else:
+                raise ValueError(f'Unexpected character at position {position}')    #TODO define new error type
+
+    result.append(Token(TokenType.EOF, ''))
+
+    return result
+
+
 
 
 class Tests(unittest.TestCase):
