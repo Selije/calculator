@@ -31,7 +31,7 @@ class Token:
         return not self.__eq__(other)
 
 
-def tokenize(input):
+def tokenize(input: str):
     whitespaces=re.compile(r'^\s')     # ^ position 0, ^s+ whitespace 1 or more times
     num = re.compile(r'^\d+')
     result = []

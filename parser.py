@@ -1,6 +1,7 @@
 from tokenizer import TokenType, Token
 from ast import BinaryExpr, UnaryExpr
 
+
 class ParseError(Exception):
     pass
 
@@ -47,3 +48,14 @@ class Parser:
         current_token = self.current_token()
         self.position += 1
         return current_token
+
+import unittest
+from tokenizer import tokenize
+
+class Tests(unittest.TestCase):
+
+    def test_adding_two_numbers(self):
+        input = tokenize('3 + 45')
+        expected = BinaryExpr(3.0, Token(TokenType.PLUS, '+'), 45.0)
+
+        self.assertEqual(expected, Parser(input).expr())
