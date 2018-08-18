@@ -93,6 +93,8 @@ class Tests(unittest.TestCase):
                     Token(TokenType.MINUS, '-'),
                     Token(TokenType.NUM, '4'),
                     Token(TokenType.EOF, '')]
-
         self.assertEqual(expected, tokenize(input))
 
+    def test_invalid_input(self):
+        input = '3* CHEESE + 18'
+        self.assertRaises(ValueError, tokenize, input)
