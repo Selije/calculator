@@ -6,7 +6,7 @@ class BinaryExpr:
         self.rh = rh
 
 
-class Unary:
+class UnaryExpr:
 
     def __init__(self, op, rh):
         self.op = op
