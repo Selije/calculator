@@ -1,5 +1,5 @@
 from tokenizer import TokenType, Token
-from ast import BinaryExpr, UnaryExpr
+from ast import BinaryExpr as BE, UnaryExpr as UE
 
 
 class ParseError(Exception):
@@ -19,7 +19,7 @@ class Parser:
         while self.current_token().type == TokenType.PLUS or self.current_token().type == TokenType.MINUS:
             op = self.advance()
             rh = self.unary()
-            result = BinaryExpr(result, op, rh)
+            result = BE(result, op, rh)
         return result
 
     def unary(self):
@@ -27,7 +27,7 @@ class Parser:
             return float(self.advance().value)
 
         else:
-            self.consume(TokenType.LPAR, 'Expect ( or number.') #is a LPAR or sth else
+            self.consume(TokenType.LPAR, 'Expect ( or number.') #is a LPAR or error when something else
             return self.paren()
 
     def paren(self):
@@ -49,13 +49,52 @@ class Parser:
         self.position += 1
         return current_token
 
+
 import unittest
 from tokenizer import tokenize
 
 class Tests(unittest.TestCase):
 
-    def test_adding_two_numbers(self):
-        input = tokenize('3 + 45')
-        expected = BinaryExpr(3.0, Token(TokenType.PLUS, '+'), 45.0)
-
+    def test_adding_numbers(self):
+        input = tokenize('3 + 45 + 8')
+        expected = BE(BE(3.0, Token(TokenType.PLUS, '+'), 45.0), Token(TokenType.PLUS, '+'), 8.0)
         self.assertEqual(expected, Parser(input).expr())
+
+    def test_subtracting_two_numbers(self):
+        input = tokenize('33 - 5')
+        expected = BE(33.0, Token(TokenType.MINUS, '-'), 5.0)
+        self.assertEqual(expected, Parser(input).expr())
+
+    def test_multiplying_two_numbers(self):
+        input = tokenize('3 * 45')
+        expected = BE(3.0, Token(TokenType.MUL, '*'), 45.0)
+        self.assertEqual(expected, Parser(input).expr())
+
+    def test_dividing_two_numbers(self):
+        input = tokenize('30 / 5')
+        expected = BE(30.0, Token(TokenType.DIV, '/'), 5.0)
+        self.assertEqual(expected, Parser(input).expr())
+
+    def test_correctness_of_sequences(self):
+        input = tokenize('3 + 45 * 8')
+        expected = BE(3.0, Token(TokenType.PLUS, '+'), BE(45.0, Token(TokenType.MUL, '*'), 8.0))
+        self.assertEqual(expected, Parser(input).expr())
+
+    def test_correctness_of_sequences_with_parenthesis(self):
+        input = tokenize('2 * (14 + 8)')
+        expected = BE(2.0, Token(TokenType.MUL, '*'), BE(14.0, Token(TokenType.PLUS, '+'), 8.0))
+        self.assertEqual(expected, Parser(input).expr())
+
+    def test_lack_of_RPAR(self):
+        input = tokenize('(3 + 45')
+        self.assertRaises(ParseError, Parser(input).expr)
+
+    def test_unexpected_RPAR(self):
+        input = tokenize('8 + )9 + 2)')
+        self.assertRaises(ParseError, Parser(input).expr)
+
+    def test_too_many_symbols(self):
+        input = tokenize('3 ++ 8')
+        self.assertRaises(ParseError, Parser(input).expr)
+
+
