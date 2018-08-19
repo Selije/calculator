@@ -15,14 +15,30 @@ class Parser:
         return self.add()
 
     def add(self):
-        result = self.unary()
+        result = self.mul()
         while self.current_token().type == TokenType.PLUS or self.current_token().type == TokenType.MINUS:
+            op = self.advance()
+            rh = self.mul()
+            result = BE(result, op, rh)
+        return result
+
+    def mul(self):
+        result = self.unary()
+        while self.current_token().type == TokenType.MUL or self.current_token().type == TokenType.DIV:
             op = self.advance()
             rh = self.unary()
             result = BE(result, op, rh)
         return result
 
     def unary(self):
+        if self.current_token().type == TokenType.MINUS:
+            op = self.advance()
+            rh = self.num()
+            return UE(op, rh)
+        else:
+            return self.num()
+
+    def num(self):
         if self.current_token().type == TokenType.NUM:  #is a number
             return float(self.advance().value)
 
@@ -75,6 +91,16 @@ class Tests(unittest.TestCase):
         expected = BE(30.0, Token(TokenType.DIV, '/'), 5.0)
         self.assertEqual(expected, Parser(input).expr())
 
+    def test_negative_number(self):
+        input = tokenize('-5')
+        expected = UE(Token(TokenType.MINUS, '-'), 5.0)
+        self.assertEqual(expected, Parser(input).expr())
+
+    def test_negative_parenthesis(self):
+        input = tokenize('-(18/5)')
+        expected = UE(Token(TokenType.MINUS, '-'), BE(18.0, Token(TokenType.DIV, '/'), 5.0))
+        self.assertEqual(expected, Parser(input).expr())
+
     def test_correctness_of_sequences(self):
         input = tokenize('3 + 45 * 8')
         expected = BE(3.0, Token(TokenType.PLUS, '+'), BE(45.0, Token(TokenType.MUL, '*'), 8.0))
@@ -94,7 +120,7 @@ class Tests(unittest.TestCase):
         self.assertRaises(ParseError, Parser(input).expr)
 
     def test_too_many_symbols(self):
-        input = tokenize('3 ++ 8')
+        input = tokenize('3 --- 8')
         self.assertRaises(ParseError, Parser(input).expr)
 
 

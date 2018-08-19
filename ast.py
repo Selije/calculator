@@ -22,3 +22,14 @@ class UnaryExpr:
     def __init__(self, op, rh):
         self.op = op
         self.rh = rh
+
+    def __repr__(self):
+        """repr function is using for tests (like __str__)"""
+        return f'({self.op} {self.rh})'
+
+    def __eq__(self, other):
+        """ Makes possible to compare tokens with == """
+        return self.op == other.op and self.rh == other.rh
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
