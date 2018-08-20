@@ -2,6 +2,10 @@ from enum import Enum
 import re
 
 
+class TokenizeError(Exception):
+    pass
+
+
 class TokenType(Enum):
     PLUS = 1
     MINUS = 2
@@ -68,7 +72,7 @@ def tokenize(input: str):
                 result.append(Token(TokenType.NUM, num_literal))
                 position += len(num_literal)
             else:
-                raise ValueError(f'Unexpected character at position {position}')    #TODO define new error type
+                raise TokenizeError(f'Unexpected character at position {position}')
 
     result.append(Token(TokenType.EOF, ''))
 
