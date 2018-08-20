@@ -66,8 +66,16 @@ class Parser:
         return current_token
 
 
+def parse(tokens):
+    return Parser(tokens).expr()
+
+
+# TESTS #
+
+
 import unittest
 from tokenizer import tokenize
+
 
 class Tests(unittest.TestCase):
 

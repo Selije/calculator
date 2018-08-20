@@ -1,5 +1,4 @@
 from enum import Enum
-import unittest
 import re
 
 
@@ -76,6 +75,9 @@ def tokenize(input: str):
     return result
 
 
+# TESTS #
+
+import unittest
 
 
 class Tests(unittest.TestCase):
