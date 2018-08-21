@@ -12,7 +12,11 @@ class Parser:
         self.position = 0
 
     def expr(self):
-        return self.add()
+        result = self.add()
+        if self.current_token().type != TokenType.EOF:
+            self.consume(TokenType.EOF, 'Expect end after expression.')
+        return result
+
 
     def add(self):
         result = self.mul()
@@ -47,7 +51,7 @@ class Parser:
             return self.paren()
 
     def paren(self):
-        expr = self.expr()
+        expr = self.add()
         self.consume(TokenType.RPAR, 'Expect ).')
         return expr
 
