@@ -103,4 +103,4 @@ class Tests(unittest.TestCase):
 
     def test_invalid_input(self):
         input = '3* CHEESE + 18'
-        self.assertRaises(ValueError, tokenize, input)
+        self.assertRaises(TokenizeError, tokenize, input)
